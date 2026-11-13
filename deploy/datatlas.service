@@ -1,0 +1,30 @@
+[Unit]
+Description=DatAtlas personal analytics
+After=network.target
+StartLimitIntervalSec=300
+StartLimitBurst=3
+[Service]
+User=datatlas
+Group=datatlas
+WorkingDirectory=/opt/datatlas
+EnvironmentFile=/etc/datatlas/app.env
+ExecStart=/opt/datatlas/.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8012 --workers 1 --limit-concurrency 8 --timeout-keep-alive 5 --no-access-log --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=15
+MemoryHigh=180M
+MemoryMax=250M
+MemorySwapMax=128M
+CPUQuota=35%
+CPUWeight=20
+TasksMax=24
+OOMPolicy=stop
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/datatlas
+RestrictSUIDSGID=true
+[Install]
+WantedBy=multi-user.target

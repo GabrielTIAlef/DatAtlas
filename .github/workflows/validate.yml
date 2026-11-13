@@ -1,0 +1,67 @@
+name: Validar DatAtlas
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GEMINI_ENABLED: 'false'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Instalar dependências Python fixadas
+        run: python -m pip install -r requirements-linux.lock
+      - name: Testar API e segurança
+        run: |
+          python -m pytest -q
+          python -m ruff check --no-cache backend tests scripts deploy
+          python -m ruff format --check --no-cache backend tests scripts deploy
+      - name: Instalar e validar frontend
+        working-directory: frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm run lint
+          npm run build
+      - name: Instalar navegador de teste
+        working-directory: frontend
+        run: |
+          npx playwright install --with-deps chromium
+          echo "CHROME_PATH=$(node --input-type=module -e 'import {chromium} from "@playwright/test"; process.stdout.write(chromium.executablePath())')" >> "$GITHUB_ENV"
+      - name: Iniciar servidor de teste sem Gemini
+        run: |
+          python -m uvicorn backend.main:app --host 127.0.0.1 --port 8012 --workers 1 --no-access-log > /tmp/datatlas-ci.log 2>&1 &
+          python - <<'PY'
+          import time
+          import urllib.request
+          for attempt in range(30):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:8012/api/status', timeout=2) as response:
+                      assert response.status == 200
+                  break
+              except OSError:
+                  if attempt == 29:
+                      raise
+                  time.sleep(1)
+          PY
+      - name: Testar jornadas no navegador
+        working-directory: frontend
+        run: npm run test:e2e
+      - name: Guardar evidências de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: datatlas-test-results
+          path: frontend/test-results/
+          retention-days: 7
