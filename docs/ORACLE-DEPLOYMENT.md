@@ -23,7 +23,7 @@ O código veio do ZIP `DatAtlas-Oracle-1.2.0.zip`, SHA-256 `81c8d3f9d9d3f45d9b8a
 No PowerShell, consulte as credenciais diretamente pelo SSH já autorizado:
 
 ```powershell
-ssh -i "F:\Downloads\keyprivate.key" ubuntu@137.131.236.116 "sudo cat /etc/datatlas/access.txt"
+ssh -i "<caminho-da-chave-ssh>" ubuntu@137.131.236.116 "sudo cat /etc/datatlas/access.txt"
 ```
 
 Use o usuário e a senha mostrados somente na janela de login do navegador. Não cole essa saída no chat. O acesso HTTP é redirecionado para HTTPS; nunca envie a senha por HTTP.
@@ -56,7 +56,7 @@ Nenhum plano, faturamento, cota, shape, volume, IP ou recurso pago foi criado/at
 
 ## Segredos, Gemini e dados
 
-- A chave foi lida do arquivo externo autorizado `F:\APIKEY.txt` e transmitida por stdin em conexão SSH criptografada. Não passou por argumento de comando, frontend, ZIP, Git ou resposta do chat.
+- A chave foi lida do arquivo externo autorizado `<arquivo-privado-da-chave>` e transmitida por stdin em conexão SSH criptografada. Não passou por argumento de comando, frontend, ZIP, Git ou resposta do chat.
 - Arquivo da VM: `/etc/datatlas/gemini-key.txt`, root:datatlas, modo 0640, em diretório 0750. O serviço consegue ler; o usuário do primeiro aplicativo não consegue. A configuração `/etc/datatlas/app.env` fica em modo 0600.
 - A chave foi comparada em memória com a chave já confirmada Free do primeiro aplicativo: é a mesma. Nenhuma configuração ou chave do primeiro projeto foi alterada. Ambos compartilham cotas do mesmo projeto Google.
 - Modelo `gemini-3.1-flash-lite`, SDK 1.75.0, timeout 15 s e uma tentativa por pergunta. Mantido `response_json_schema`, sem reintroduzir o formato que rejeitava `additional_properties`.
@@ -128,10 +128,10 @@ sudo python3 /opt/datatlas/deploy/rollback.py
 
 O rollback desabilita/para `datatlas.service`, remove apenas o link do DatAtlas após validar o destino e recarrega o Nginx depois de testar a configuração. Não apaga fontes, credenciais, estado ou certificados e não restaura globalmente o Nginx, o que poderia sobrescrever alterações futuras de outros aplicativos. O domínio deixa de servir o DatAtlas. Os backups ficam para inspeção/recuperação administrativa.
 
-## Pendências e limites operacionais
+## Pendências e limites operacionais do registro de implantação
 
-- Sem multiusuário: antes de compartilhar acesso ou aceitar uploads de várias pessoas, implementar proprietários e isolamento real. Não retirar a senha apenas para abrir a página.
+- O modo público já isola datasets por sessão de navegador, conforme a atualização no início deste documento. Não há contas de usuário, recuperação de sessão ou governança para dados reais; esses recursos pertencem a outro escopo.
 - Não há avisos externos de falha nem garantia 24/7; é necessária observação ao longo dos dias e respeito às condições Oracle/Gemini Free.
 - Não há backup de datasets, pois eles não são persistidos. O estado persistente do DatAtlas é a cota SQLite e a configuração protegida; antes de uma migração/perda da VM, planejar sua recuperação, sem colocar segredos em ZIP público.
-- **Pendência pré-existente do primeiro projeto:** o arquivo privado da tarefa de backup Windows ainda aponta para `C:\Users\gabri\Downloads\keyprivate.key`, que não existe mais. A chave está agora em `F:\Downloads\keyprivate.key`. A tarefa reportava falha antes desta implantação; não a alterei para preservar integralmente sua configuração. Os backups do banco na VM continuam independentes. Corrigir somente esse caminho em uma manutenção própria restabelece a cópia externa.
+- **Pendência pré-existente do primeiro projeto:** o arquivo privado da tarefa de backup Windows ainda aponta para `<diretorio-local-privado>`, que não existe mais. A chave está agora em `<caminho-da-chave-ssh>`. A tarefa reportava falha antes desta implantação; não a alterei para preservar integralmente sua configuração. Os backups do banco na VM continuam independentes. Corrigir somente esse caminho em uma manutenção própria restabelece a cópia externa.
 - Avisos de ferramentas de desenvolvimento: depreciação do adaptador httpx no TestClient e do ESLint 9 no gerenciador npm. Não impediram testes/build; não foram feitas atualizações maiores fora do escopo.
