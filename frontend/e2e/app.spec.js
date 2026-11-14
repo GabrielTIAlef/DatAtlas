@@ -125,7 +125,7 @@ test('erro mantém dados e bloqueia exportação até tentar novamente',async({p
   await expect(page.getByRole('button',{name:'Exportar relatório'})).toBeEnabled();
 });
 
-test('exportação usa exatamente filtros e seleção atuais',async({page})=>{
+test('exportação usa exatamente filtros e seleção atuais',async({page},testInfo)=>{
   await demo(page);await rule(page,'canal','Digital');
   await page.getByRole('button',{name:'Selecionar Sul',exact:true}).click();
   await expect(page.getByText('Recorte atualizado',{exact:true})).toBeVisible();
@@ -138,8 +138,9 @@ test('exportação usa exatamente filtros e seleção atuais',async({page})=>{
   expect(request.postDataJSON().selection.value).toBe('Sul');
   expect(request.postDataJSON().filters[0].value).toBe('Digital');
   expect(response.status()).toBe(200);
-  await download.saveAs('../docs/exemplo-relatorio.html');
-  expect(await readFile('../docs/exemplo-relatorio.html','utf8')).toContain('Sul');
+  const reportPath=testInfo.outputPath('exemplo-relatorio.html');
+  await download.saveAs(reportPath);
+  expect(await readFile(reportPath,'utf8')).toContain('Sul');
   expect(download.suggestedFilename()).toBe('relatorio-analise.html');
 });
 
@@ -155,17 +156,17 @@ test('CSV válido, arquivo inválido preserva base e textos longos não estouram
   for(const width of [1440,900,390,320]){await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();}
 });
 
-test('desktop, tablet, celular, cabeçalho fixo e movimento reduzido',async({page})=>{
+test('desktop, tablet, celular, cabeçalho fixo e movimento reduzido',async({page},testInfo)=>{
   await demo(page);
-  await page.screenshot({path:'../docs/revisao-desktop.png',fullPage:true});
+  await page.screenshot({path:testInfo.outputPath('revisao-desktop.png'),fullPage:true});
   await page.evaluate(()=>window.scrollTo(0,500));
   expect(await page.locator('.page-heading').evaluate(el=>Math.round(el.getBoundingClientRect().top))).toBe(0);
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.setViewportSize({width:900,height:1024});
-  await page.screenshot({path:'../docs/revisao-tablet.png',fullPage:true});
+  await page.screenshot({path:testInfo.outputPath('revisao-tablet.png'),fullPage:true});
   await page.setViewportSize({width:390,height:844});
   await page.evaluate(()=>window.scrollTo(0,0));
-  await page.screenshot({path:'../docs/revisao-mobile.png',fullPage:true});
+  await page.screenshot({path:testInfo.outputPath('revisao-mobile.png'),fullPage:true});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
   const overlaps=await page.evaluate(()=>{
     const widget=document.querySelector('.assistant-launcher').getBoundingClientRect();
@@ -176,7 +177,7 @@ test('desktop, tablet, celular, cabeçalho fixo e movimento reduzido',async({pag
   await page.getByLabel('Sua pergunta').fill('Quantas linhas temos?');
   await page.getByRole('button',{name:'Enviar',exact:true}).click();
   await expect(page.locator('.assistant-message')).toContainText('363 linhas');
-  await page.screenshot({path:'../docs/revisao-assistente-mobile.png'});
+  await page.screenshot({path:testInfo.outputPath('revisao-assistente-mobile.png')});
   const panel=await page.locator('.assistant-panel').boundingBox();expect(panel.x).toBeGreaterThanOrEqual(0);expect(panel.x+panel.width).toBeLessThanOrEqual(390);
   await page.emulateMedia({reducedMotion:'reduce'});
   expect(await page.locator('.analysis-content').evaluate(e=>getComputedStyle(e).transitionDuration)).toBe('0s');

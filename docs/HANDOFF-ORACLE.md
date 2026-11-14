@@ -1,5 +1,11 @@
 # DatAtlas — passagem para implantação Oracle
 
+Registro histórico de preparação do pacote. As autorizações e pendências abaixo
+descrevem aquela etapa; não são instruções atuais de execução. A implantação e
+a publicação posteriores estão registradas em [ORACLE-DEPLOYMENT.md](ORACLE-DEPLOYMENT.md)
+e [CI.md](CI.md).
+
+
 Data: 13/11/2026. Versão do produto: 1.2.0.
 
 ## 1. Objetivo e autorização do usuário
@@ -10,7 +16,7 @@ Este documento acompanha o código local; **nenhuma implantação Oracle foi exe
 
 ## 2. Localizar a entrega
 
-- Projeto no computador: `C:\Users\gabri\Projetos-IA\ai-analytics-copilot`.
+- Projeto no computador: `<diretorio-local-privado>`.
 - Guia de uso e arquitetura: `README.md`.
 - API: `backend/main.py`.
 - Orçamento de requisições Gemini: `backend/gemini_budget.py`.
@@ -78,7 +84,7 @@ Consulta: `filters` (até 8), `selection` opcional, `group`, `metric`, `aggregat
 
 O modelo configurado é `gemini-3.1-flash-lite`, seguindo o primeiro projeto. SDK com timeout de 15 s, uma tentativa e JSON Schema em `response_json_schema`. O formato antigo `response_schema` gerou rejeição de `additional_properties` na validação real; não reintroduzir essa regressão.
 
-A configuração local lê a chave de **`F:\APIKEY.txt`**, caminho indicado pelo usuário, por meio de `GEMINI_KEY_FILE` no `.env` ignorado. Esse caminho Windows **não funcionará na Oracle**. O arquivo e a chave **não estão neste pacote**. Não criar outra chave ou trocar a do Projeto 1 sem necessidade/autorização.
+A configuração local lê a chave de **`<arquivo-privado-da-chave>`**, caminho indicado pelo usuário, por meio de `GEMINI_KEY_FILE` no `.env` ignorado. Esse caminho Windows **não funcionará na Oracle**. O arquivo e a chave **não estão neste pacote**. Não criar outra chave ou trocar a do Projeto 1 sem necessidade/autorização.
 
 Na VM, disponibilize o mesmo segredo por um canal seguro autorizado, como arquivo acessível somente ao usuário do serviço ou variável de ambiente protegida. Não colocar a chave em código, frontend, ZIP, Git, imagem de contêiner, linha de comando exposta, relatório, logs ou resposta do chat. Não pedir ao usuário que cole a chave na conversa. Evitar passar o segredo em argumentos de shell.
 

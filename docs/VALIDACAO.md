@@ -1,5 +1,11 @@
 # Validação da revisão — 13/11/2026
 
+Registro histórico da revisão inicial de interface, anterior ao acesso público por
+sessão. As contagens abaixo descrevem aquela etapa. Para a revisão atual, consulte
+[REVISAO_PORTFOLIO.md](REVISAO_PORTFOLIO.md); para a evolução da implantação,
+[ORACLE-DEPLOYMENT.md](ORACLE-DEPLOYMENT.md).
+
+
 ## Ambiente
 
 Windows, Python 3.12.10 e bibliotecas já presentes no ambiente `.venv`; Node 24.22.1 do runtime disponível; Chrome existente no computador. FastAPI servido em `127.0.0.1:8012`. Nenhuma nova infraestrutura ou dependência de aplicação foi instalada. Testes usam a demonstração local sintética e CSVs/XLSX artificiais controlados; nenhum dataset pessoal foi enviado a provedores externos.
